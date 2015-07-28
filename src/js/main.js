@@ -227,7 +227,7 @@ function parseIncidents(doc) {
   var incidents = {};
   var pos = 0;
   
-  var i = 1000;
+  var i = 0;
   
   while (doc.indexOf("<li>", pos) != -1) {
     var start = doc.indexOf("<li>", pos);
@@ -242,27 +242,75 @@ function parseIncidents(doc) {
     //console.log("item: " + item.substring(1, 5));
     var date = doc.substring(spanstart + 22, spanstart + 41);
     
-    incidents[i.toString()] = item;
-    //incidents[(i+1000).toString()] = date;
+    console.log(encodeURI(item));
+    incidents[(i+1000).toString()] =  encodeURI(item);
+    incidents[(i+2000).toString()] = date;
     i++;
   }
   
-  incidents.incidents_size = i - 1000;
+  incidents.incidents_size = i;
 
   //console.log('Send message: ' + JSON.stringify(incidents));
   console.log('Send message! num messages=' + incidents.incidents_size);
   
-  Pebble.sendAppMessage(incidents, null, null);
-  /*
+  Pebble.sendAppMessage(incidents, //null, null);
     function(e) {
-      //console.log('Successfully delivered message with transactionId=' + e.data.transactionId);
+      console.log('Successfully delivered message with transactionId=' + e.data.transactionId);
     },
     function(e) {
-      //console.log('Unable to deliver message with transactionId=' + e.data.transactionId + ' Error is: ' + e.error.message);
+      console.log('Unable to deliver message with transactionId=' + e.data.transactionId + ' Error is: ' + e.error.message);
     }
-  );*/
+  );
   
-  //console.log("exiting parseIncidents, transactionId=" + transactionId);
+}
+
+function parseTravelTimes(doc) {
+  var traveltimes = {};
+  var pos = 0;
+  
+  var i = 0;
+  
+  while (doc.indexOf("<Placemark ", pos) != -1) {
+    var placemark_start = doc.indexOf("<Placemark ", pos);
+    pos = placemark_start + 1;
+    var placemark_end = doc.indexOf("</Placemark>", pos);
+    
+    var name_start = doc.indexOf("<name>", pos);
+    var name_end = doc.indexOf("</name>", pos);
+    var name = doc.substring(name_start + 6, name_end);
+    
+    var placemarktimes = "";
+    
+    var subpos = pos;
+    while (doc.indexOf("<span", subpos) != -1 && doc.indexOf("<span", subpos) < placemark_end) {
+      var span_start = doc.indexOf("<span", subpos);
+      subpos = span_start + 1;
+      var span_end = doc.indexOf("</span>", subpos);
+      var placemarktime = doc.substring(span_start + 19, span_end);
+      placemarktimes += placemarktime + "\n";
+    }
+    
+    console.log("name=" + name + ", times=" + placemarktimes);
+    
+    traveltimes[(i+3000).toString()] = name;
+    traveltimes[(i+4000).toString()] = placemarktimes;
+    i++;
+  }
+  
+  traveltimes.traveltimes_size = i;
+
+  //console.log('Send message: ' + JSON.stringify(incidents));
+  console.log('Send message! num messages=' + traveltimes.traveltimes_size);
+  
+  Pebble.sendAppMessage(traveltimes, //null, null);
+    function(e) {
+      console.log('Successfully delivered message with transactionId=' + e.data.transactionId);
+    },
+    function(e) {
+      console.log('Unable to deliver message with transactionId=' + e.data.transactionId + ' Error is: ' + e.error.message);
+    }
+  );
+  
   
 }
 
@@ -284,6 +332,26 @@ function getIncidents() {
   req.send();
 }
 
+
+function getTravelTimes() {
+  var req = new XMLHttpRequest();
+  req.onload = function(e) {
+
+    //console.log("ready state change - readyState=" + req.readyState);
+    
+    if (req.readyState == 4 && req.status == 200) {
+      console.log("responseXML: " + req.responseXML);
+      //console.log("responseText: " + req.responseText.substring(1, 4));
+
+      parseTravelTimes(req.responseText);
+    }
+  };
+  
+  req.open('GET', 'http://cita.lu/kml/temps_parcours.kml', true);
+  console.log("calling cita.lu");
+  req.send();
+}
+
 Pebble.addEventListener("ready", function(e) {
   // console.log("Ready to go!");  
 });
@@ -292,6 +360,8 @@ Pebble.addEventListener("appmessage", function(e) {
   console.log('Received message: ' + JSON.stringify(e.payload));
   if (e.payload.incidents_req) {
     getIncidents();
+  } else if (e.payload.traveltimes_req) {
+    getTravelTimes();
   } else {
     getImage(options.url);
   }

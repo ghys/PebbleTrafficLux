@@ -1,6 +1,8 @@
 #include <pebble.h>
 #include "webcam.h"
 #include "incidents.h"
+#include "temps.h"
+
 
 static Window *rootmenu;
 
@@ -10,6 +12,10 @@ static Window *rootmenu;
 
 static void menuselect_incidents(int index, void *context) {
 	init_incidents();
+}
+
+static void menuselect_traveltimes(int index, void *context) {
+	init_traveltimes();
 }
 
 static void menuselect_webcams(int index, void *context) {
@@ -30,7 +36,7 @@ static void rootmenu_load(Window *window) {
 		"Incidents", "en cours", NULL, menuselect_incidents
 	};
 	menu_section0_items[1] = (SimpleMenuItem) {
-		"Temps", "de parcours", NULL, NULL
+		"Temps", "de parcours", NULL, menuselect_traveltimes
 	};
 	menu_section0_items[2] = (SimpleMenuItem) {
 		"Webcams", NULL, NULL, menuselect_webcams
@@ -59,6 +65,9 @@ static void rootmenu_unload(Window *window) {
 
 
 static void init_menu(void) {
+	// Init buffers
+	app_message_open(app_message_inbox_size_maximum(), APP_MESSAGE_OUTBOX_SIZE_MINIMUM);
+  
 	rootmenu = window_create();
 	window_set_window_handlers(rootmenu, (WindowHandlers) {
 		.load = rootmenu_load,

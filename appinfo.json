@@ -5,7 +5,9 @@
         "incidents_size": 11,
         "index": 1,
         "message": 2,
-        "size": 3
+        "size": 3,
+        "traveltimes_req": 20,
+        "traveltimes_size": 21
     },
     "capabilities": [
         "configurable"

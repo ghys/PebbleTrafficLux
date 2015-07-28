@@ -63,8 +63,6 @@ static void cb_in_received_handler(DictionaryIterator *iter, void *context) {
 static void webcam_app_message_init() {
 	// Register message handlers
 	app_message_register_inbox_received(cb_in_received_handler);
-	// Init buffers
-	app_message_open(app_message_inbox_size_maximum(), APP_MESSAGE_OUTBOX_SIZE_MINIMUM);
 }
 
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
