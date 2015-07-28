@@ -1,0 +1,30 @@
+{
+    "appKeys": {
+        "chunk": 0,
+        "incidents_req": 10,
+        "incidents_size": 11,
+        "index": 1,
+        "message": 2,
+        "size": 3
+    },
+    "capabilities": [
+        "configurable"
+    ],
+    "companyName": "YS",
+    "longName": "Trafic Info Luxembourg",
+    "projectType": "native",
+    "resources": {
+        "media": []
+    },
+    "sdkVersion": "3",
+    "shortName": "Trafic Info Luxembourg",
+    "targetPlatforms": [
+        "aplite",
+        "basalt"
+    ],
+    "uuid": "ed4bd38e-6b71-4cc2-a3cf-1a3732ec2f2b",
+    "versionLabel": "0.1",
+    "watchapp": {
+        "watchface": false
+    }
+}
