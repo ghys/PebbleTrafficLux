@@ -170,8 +170,8 @@ static void webcam_submenu_load(Window *window) {
 
 	SimpleMenuLayer *menu = simple_menu_layer_create(bounds, webcams_submenu, webcams_submenu_sections, 1, NULL);
 #ifdef PBL_COLOR
-  menu_layer_set_highlight_colors(simple_menu_layer_get_menu_layer(menu), GColorChromeYellow, GColorWhite);
-  menu_layer_set_normal_colors(simple_menu_layer_get_menu_layer(menu), GColorPastelYellow, GColorBlack);
+  menu_layer_set_highlight_colors(simple_menu_layer_get_menu_layer(menu), GColorIndigo, GColorWhite);
+  //menu_layer_set_normal_colors(simple_menu_layer_get_menu_layer(menu), GColorPastelYellow, GColorBlack);
 #endif
 	layer_add_child(window_layer, (Layer *)menu);
 }
@@ -220,7 +220,7 @@ static void webcam_mainmenu_load(Window *window) {
 	SimpleMenuLayer *menu = simple_menu_layer_create(bounds, webcams_mainmenu, webcams_mainmenu_sections, NB_SECTIONS, NULL);
 #ifdef PBL_COLOR
   menu_layer_set_highlight_colors(simple_menu_layer_get_menu_layer(menu), GColorTiffanyBlue, GColorWhite);
-  menu_layer_set_normal_colors(simple_menu_layer_get_menu_layer(menu), GColorCeleste, GColorBlack);
+  //menu_layer_set_normal_colors(simple_menu_layer_get_menu_layer(menu), GColorCeleste, GColorBlack);
 #endif
   layer_add_child(window_layer, (Layer *)menu);
 }

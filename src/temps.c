@@ -13,6 +13,7 @@ static ScrollLayer *traveltime_details_scroll_layer;
 static TextLayer *traveltime_details_text_layer;
 static TextLayer *traveltime_from_text_layer;
 static TextLayer *traveltime_name_text_layer;
+static TextLayer *traveltime_bkg_text_layer;
 
 static SimpleMenuItem *traveltimes_menu_items = NULL;
 static SimpleMenuSection traveltimes_menu_section;
@@ -33,8 +34,9 @@ static void traveltime_details_window_load(Window *window) {
   GRect bounds = layer_get_frame(window_layer);
   GRect max_text_bounds = GRect(10, 90, bounds.size.w - 20, 60);
   GRect from_text_bounds = GRect(10, 10, bounds.size.w - 20, 30);
-  GRect name_text_bounds = GRect(10, 30, bounds.size.w - 20, 60);
-
+  GRect name_text_bounds = GRect(10, 30, bounds.size.w - 20, 40);
+  GRect bkg_text_bounds = GRect(0, 70, bounds.size.w, bounds.size.h);
+  
   // Initialize the scroll layer
   traveltime_details_scroll_layer = scroll_layer_create(bounds);
 
@@ -60,7 +62,10 @@ static void traveltime_details_window_load(Window *window) {
   //text_layer_set_size(traveltime_details_text_layer, max_size);
   scroll_layer_set_content_size(traveltime_details_scroll_layer, GSize(bounds.size.w, max_size.h + 104));
 
+  traveltime_bkg_text_layer = text_layer_create(bkg_text_bounds);
+  
 #ifdef PBL_COLOR
+  text_layer_set_background_color(traveltime_bkg_text_layer, GColorBlack);
   text_layer_set_background_color(traveltime_from_text_layer, GColorIslamicGreen);
   text_layer_set_background_color(traveltime_name_text_layer, GColorIslamicGreen);
   text_layer_set_background_color(traveltime_details_text_layer, GColorBlack);
@@ -70,6 +75,7 @@ static void traveltime_details_window_load(Window *window) {
 #endif
   
   // Add the layers for display
+  scroll_layer_add_child(traveltime_details_scroll_layer, text_layer_get_layer(traveltime_bkg_text_layer));
   scroll_layer_add_child(traveltime_details_scroll_layer, text_layer_get_layer(traveltime_from_text_layer));
   scroll_layer_add_child(traveltime_details_scroll_layer, text_layer_get_layer(traveltime_name_text_layer));
   scroll_layer_add_child(traveltime_details_scroll_layer, text_layer_get_layer(traveltime_details_text_layer));
@@ -78,6 +84,7 @@ static void traveltime_details_window_load(Window *window) {
 }
 
 static void traveltime_details_window_unload(Window *window) {
+  text_layer_destroy(traveltime_bkg_text_layer);
   text_layer_destroy(traveltime_details_text_layer);
   text_layer_destroy(traveltime_from_text_layer);
   text_layer_destroy(traveltime_name_text_layer);

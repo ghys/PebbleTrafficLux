@@ -47,7 +47,7 @@ static void rootmenu_load(Window *window) {
 	};
 
 	menu_section1_items[0] = (SimpleMenuItem) {
-		"(c) YS 2015", NULL, NULL, NULL
+		"PebbleTrafficLux", "Data (c) CITA", NULL, NULL
 	};
 
 	menu_sections[1] = (SimpleMenuSection) {

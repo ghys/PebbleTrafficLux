@@ -13,6 +13,7 @@ static int nb_incidents = 0;
 static int current_incident_idx = 0;
 static ScrollLayer *incident_details_scroll_layer;
 static TextLayer *incident_details_text_layer;
+static TextLayer *incident_details_date_layer;
 
 static SimpleMenuItem *incidents_menu_items = NULL;
 static SimpleMenuSection incidents_menu_section;
@@ -58,7 +59,8 @@ static void urldecode2(char *dst, const char *src)
 static void incident_details_window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_frame(window_layer);
-  GRect max_text_bounds = GRect(0, 0, bounds.size.w, 2000);
+  GRect date_text_bounds = GRect(0, 0, bounds.size.w, 17);
+  GRect max_text_bounds = GRect(10, 20, bounds.size.w - 20, 2000);
 
   // Initialize the scroll layer
   incident_details_scroll_layer = scroll_layer_create(bounds);
@@ -67,28 +69,38 @@ static void incident_details_window_load(Window *window) {
   // You may use scroll_layer_set_callbacks to add or override interactivity
   scroll_layer_set_click_config_onto_window(incident_details_scroll_layer, window);
 
-  // Initialize the text layer
+  // Initialize the text layers
   incident_details_text_layer = text_layer_create(max_text_bounds);
   text_layer_set_text(incident_details_text_layer, incidents_menu_items[current_incident_idx].title);
+  incident_details_date_layer = text_layer_create(date_text_bounds);
+  text_layer_set_text(incident_details_date_layer, incidents_menu_items[current_incident_idx].subtitle);
 
-  // Change the font to a nice readable one
-  // This is system font; you can inspect pebble_fonts.h for all system fonts
-  // or you can take a look at feature_custom_font to add your own font
+  // Change the fonts
   text_layer_set_font(incident_details_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
+  text_layer_set_font(incident_details_date_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
 
+#ifdef PBL_COLOR
+  text_layer_set_background_color(incident_details_text_layer, GColorMelon);
+  text_layer_set_background_color(incident_details_date_layer, GColorRed);
+  text_layer_set_text_color(incident_details_date_layer, GColorWhite);
+  text_layer_set_text_alignment(incident_details_date_layer, GTextAlignmentCenter);
+#endif
+  
   // Trim text layer and scroll content to fit text box
   GSize max_size = text_layer_get_content_size(incident_details_text_layer);
   text_layer_set_size(incident_details_text_layer, max_size);
-  scroll_layer_set_content_size(incident_details_scroll_layer, GSize(bounds.size.w, max_size.h + 20));
+  scroll_layer_set_content_size(incident_details_scroll_layer, GSize(bounds.size.w, max_size.h + 45));
 
   // Add the layers for display
   scroll_layer_add_child(incident_details_scroll_layer, text_layer_get_layer(incident_details_text_layer));
+  scroll_layer_add_child(incident_details_scroll_layer, text_layer_get_layer(incident_details_date_layer));
 
   layer_add_child(window_layer, scroll_layer_get_layer(incident_details_scroll_layer));
 }
 
 static void incident_details_window_unload(Window *window) {
   text_layer_destroy(incident_details_text_layer);
+  text_layer_destroy(incident_details_date_layer);
   scroll_layer_destroy(incident_details_scroll_layer);
 }
 
@@ -147,7 +159,7 @@ static void cb_incidents_received_handler(DictionaryIterator *iter, void *contex
   
 	SimpleMenuLayer *menu = simple_menu_layer_create(bounds, incidents, &incidents_menu_section, 1, NULL);
 #ifdef PBL_COLOR
-  menu_layer_set_highlight_colors(simple_menu_layer_get_menu_layer(menu), GColorWhite, GColorMelon);
+  menu_layer_set_highlight_colors(simple_menu_layer_get_menu_layer(menu), GColorRed, GColorWhite);
 #endif
 	layer_add_child(window_layer, (Layer *)menu);
   
@@ -190,9 +202,6 @@ void init_incidents(void) {
 	app_message_register_inbox_received(cb_incidents_received_handler);
 
   incidents = window_create();
-#ifdef PBL_COLOR
-  window_set_background_color(incidents, GColorMelon);
-#endif
   window_set_window_handlers(incidents, (WindowHandlers) {
 		.load = incidents_load,
 	  .unload = incidents_unload,
