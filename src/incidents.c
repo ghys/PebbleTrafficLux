@@ -79,7 +79,7 @@ static void incident_details_window_load(Window *window) {
   // Trim text layer and scroll content to fit text box
   GSize max_size = text_layer_get_content_size(incident_details_text_layer);
   text_layer_set_size(incident_details_text_layer, max_size);
-  scroll_layer_set_content_size(incident_details_scroll_layer, GSize(bounds.size.w, max_size.h + 10));
+  scroll_layer_set_content_size(incident_details_scroll_layer, GSize(bounds.size.w, max_size.h + 20));
 
   // Add the layers for display
   scroll_layer_add_child(incident_details_scroll_layer, text_layer_get_layer(incident_details_text_layer));
@@ -95,6 +95,9 @@ static void incident_details_window_unload(Window *window) {
 static void show_incident_details(int index, void *context) {
   current_incident_idx = index;
   incident_details = window_create();
+#ifdef PBL_COLOR
+  window_set_background_color(incident_details, GColorMelon);
+#endif
 	window_set_window_handlers(incident_details, (WindowHandlers) {
 		.load = incident_details_window_load,
 	  .unload = incident_details_window_unload,
@@ -143,6 +146,9 @@ static void cb_incidents_received_handler(DictionaryIterator *iter, void *contex
 	GRect bounds = layer_get_bounds(window_layer);
   
 	SimpleMenuLayer *menu = simple_menu_layer_create(bounds, incidents, &incidents_menu_section, 1, NULL);
+#ifdef PBL_COLOR
+  menu_layer_set_highlight_colors(simple_menu_layer_get_menu_layer(menu), GColorWhite, GColorMelon);
+#endif
 	layer_add_child(window_layer, (Layer *)menu);
   
 }
@@ -156,8 +162,7 @@ static void incidents_load(Window *window) {
 	text_layer_set_text(incidents_loading_layer, "Loading...");
 	text_layer_set_font(incidents_loading_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
 	text_layer_set_text_alignment(incidents_loading_layer, GTextAlignmentCenter);
-	text_layer_set_background_color(incidents_loading_layer, GColorClear);
-	layer_add_child(window_layer, text_layer_get_layer(incidents_loading_layer));
+  layer_add_child(window_layer, text_layer_get_layer(incidents_loading_layer));
   
 	DictionaryIterator *iter;
 	uint8_t value = 1;
@@ -185,7 +190,10 @@ void init_incidents(void) {
 	app_message_register_inbox_received(cb_incidents_received_handler);
 
   incidents = window_create();
-	window_set_window_handlers(incidents, (WindowHandlers) {
+#ifdef PBL_COLOR
+  window_set_background_color(incidents, GColorMelon);
+#endif
+  window_set_window_handlers(incidents, (WindowHandlers) {
 		.load = incidents_load,
 	  .unload = incidents_unload,
 	});

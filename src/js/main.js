@@ -1,6 +1,6 @@
 var options = JSON.parse(localStorage.getItem('options'));
 if (options === null) 
-  options = { "url" : "http://www.cita.lu/info_trafic/cameras/images/cccam_42.jpg"};
+  options = { "url" : "http://www.cita.lu/info_trafic/cameras/images/cccam_{id}.jpg"};
 
 var CHUNK_SIZE = 1500;
 var DOWNLOAD_TIMEOUT = 20000;
@@ -362,8 +362,9 @@ Pebble.addEventListener("appmessage", function(e) {
     getIncidents();
   } else if (e.payload.traveltimes_req) {
     getTravelTimes();
-  } else {
-    getImage(options.url);
+  } else if (e.payload.webcam) {
+    console.log('Downloading webcam #' + e.payload.webcam);
+    getImage(options.url.replace('{id}', e.payload.webcam));
   }
 });
 

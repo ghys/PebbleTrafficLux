@@ -43,7 +43,7 @@ static void rootmenu_load(Window *window) {
 	};
 
 	menu_sections[0] = (SimpleMenuSection) {
-		"CITA.LU", menu_section0_items, 3
+		"Traffic Info Lux.", menu_section0_items, 3
 	};
 
 	menu_section1_items[0] = (SimpleMenuItem) {
@@ -55,7 +55,10 @@ static void rootmenu_load(Window *window) {
 	};
 
 	SimpleMenuLayer *menu = simple_menu_layer_create(bounds, rootmenu, menu_sections, 2, NULL);
-	layer_add_child(window_layer, (Layer *)menu);
+#ifdef PBL_COLOR
+  menu_layer_set_highlight_colors(simple_menu_layer_get_menu_layer(menu), GColorCobaltBlue, GColorWhite);
+#endif
+  layer_add_child(window_layer, (Layer *)menu);
 
 }
 

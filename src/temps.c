@@ -31,7 +31,7 @@ static SimpleMenuSection traveltimes_menu_section;
 static void traveltime_details_window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_frame(window_layer);
-  GRect max_text_bounds = GRect(10, 100, bounds.size.w - 20, 960);
+  GRect max_text_bounds = GRect(10, 90, bounds.size.w - 20, 60);
   GRect from_text_bounds = GRect(10, 10, bounds.size.w - 20, 30);
   GRect name_text_bounds = GRect(10, 30, bounds.size.w - 20, 60);
 
@@ -45,7 +45,7 @@ static void traveltime_details_window_load(Window *window) {
   // Initialize the text layers
   traveltime_from_text_layer = text_layer_create(from_text_bounds);
   text_layer_set_text(traveltime_from_text_layer, "Depuis");
-  text_layer_set_font(traveltime_from_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD));
+  text_layer_set_font(traveltime_from_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
 
   traveltime_name_text_layer = text_layer_create(name_text_bounds);
   text_layer_set_text(traveltime_name_text_layer, traveltimes_menu_items[current_traveltime_idx].title);
@@ -57,9 +57,18 @@ static void traveltime_details_window_load(Window *window) {
 
   // Trim text layer and scroll content to fit text box
   GSize max_size = text_layer_get_content_size(traveltime_details_text_layer);
-  text_layer_set_size(traveltime_details_text_layer, max_size);
-  scroll_layer_set_content_size(traveltime_details_scroll_layer, GSize(bounds.size.w, max_size.h + 100));
+  //text_layer_set_size(traveltime_details_text_layer, max_size);
+  scroll_layer_set_content_size(traveltime_details_scroll_layer, GSize(bounds.size.w, max_size.h + 104));
 
+#ifdef PBL_COLOR
+  text_layer_set_background_color(traveltime_from_text_layer, GColorIslamicGreen);
+  text_layer_set_background_color(traveltime_name_text_layer, GColorIslamicGreen);
+  text_layer_set_background_color(traveltime_details_text_layer, GColorBlack);
+  text_layer_set_text_color(traveltime_from_text_layer, GColorWhite);
+  text_layer_set_text_color(traveltime_name_text_layer, GColorWhite);
+  text_layer_set_text_color(traveltime_details_text_layer, GColorYellow);
+#endif
+  
   // Add the layers for display
   scroll_layer_add_child(traveltime_details_scroll_layer, text_layer_get_layer(traveltime_from_text_layer));
   scroll_layer_add_child(traveltime_details_scroll_layer, text_layer_get_layer(traveltime_name_text_layer));
@@ -78,6 +87,9 @@ static void traveltime_details_window_unload(Window *window) {
 static void show_traveltime_details(int index, void *context) {
   current_traveltime_idx = index;
   traveltime_details = window_create();
+#ifdef PBL_COLOR
+  window_set_background_color(traveltime_details, GColorIslamicGreen);
+#endif
 	window_set_window_handlers(traveltime_details, (WindowHandlers) {
 		.load = traveltime_details_window_load,
 	  .unload = traveltime_details_window_unload,
@@ -124,6 +136,9 @@ static void cb_traveltimes_received_handler(DictionaryIterator *iter, void *cont
 	GRect bounds = layer_get_bounds(window_layer);
   
 	SimpleMenuLayer *menu = simple_menu_layer_create(bounds, traveltimes, &traveltimes_menu_section, 1, NULL);
+#ifdef PBL_COLOR
+  menu_layer_set_highlight_colors(simple_menu_layer_get_menu_layer(menu), GColorIslamicGreen, GColorWhite);
+#endif
 	layer_add_child(window_layer, (Layer *)menu);
   
 }
