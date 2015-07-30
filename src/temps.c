@@ -39,16 +39,16 @@ static void traveltime_details_window_load(Window *window) {
   
   // Initialize the scroll layer
   traveltime_details_scroll_layer = scroll_layer_create(bounds);
-
+  
   // This binds the scroll layer to the window so that up and down map to scrolling
   // You may use scroll_layer_set_callbacks to add or override interactivity
   scroll_layer_set_click_config_onto_window(traveltime_details_scroll_layer, window);
-
+  
   // Initialize the text layers
   traveltime_from_text_layer = text_layer_create(from_text_bounds);
   text_layer_set_text(traveltime_from_text_layer, "Depuis");
   text_layer_set_font(traveltime_from_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
-
+  
   traveltime_name_text_layer = text_layer_create(name_text_bounds);
   text_layer_set_text(traveltime_name_text_layer, traveltimes_menu_items[current_traveltime_idx].title);
   text_layer_set_font(traveltime_name_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
@@ -56,12 +56,12 @@ static void traveltime_details_window_load(Window *window) {
   traveltime_details_text_layer = text_layer_create(max_text_bounds);
   text_layer_set_text(traveltime_details_text_layer, traveltimes_menu_items[current_traveltime_idx].subtitle);
   text_layer_set_font(traveltime_details_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
-
+  
   // Trim text layer and scroll content to fit text box
   GSize max_size = text_layer_get_content_size(traveltime_details_text_layer);
   //text_layer_set_size(traveltime_details_text_layer, max_size);
   scroll_layer_set_content_size(traveltime_details_scroll_layer, GSize(bounds.size.w, max_size.h + 104));
-
+  
   traveltime_bkg_text_layer = text_layer_create(bkg_text_bounds);
   
 #ifdef PBL_COLOR

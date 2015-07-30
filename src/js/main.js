@@ -30,13 +30,13 @@ function sendBitmap(bitmap){
   };
 
   MessageQueue.sendAppMessage(
-      {
-      "index":i,
-      "chunk":sliced
-      },
-      success,
-      null
-      );
+  {
+    "index":i,
+    "chunk":sliced
+    },
+    success,
+    null
+  );
 }
 
 function convertImage(rgbaPixels, numComponents, width, height){

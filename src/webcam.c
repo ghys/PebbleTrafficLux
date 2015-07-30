@@ -111,7 +111,7 @@ static void webcam_window_unload(Window *window) {
 	bitmap_layer_destroy(image_layer);
 	if (image){
 		gbitmap_destroy(image);
-    image = NULL;
+	    image = NULL;
 	}
 	if (data_image){
 		free(data_image);
@@ -124,13 +124,13 @@ static void webcam_window_unload(Window *window) {
 /* Webcams sub menu */
 
 static void webcam_submenu_select(int index, void *context) {
-  int first = 0;
-  while (webcams[first].mainmenu_id < webcams_current_submenu_idx) first++;
-
-  webcam_current_id = webcams[first + index].webcam_id;
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "webcam selection first=%d index=%d webcamid=%d", first, index, webcam_current_id);
-
-  
+	int first = 0;
+	while (webcams[first].mainmenu_id < webcams_current_submenu_idx) first++;
+	
+	webcam_current_id = webcams[first + index].webcam_id;
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "webcam selection first=%d index=%d webcamid=%d", first, index, webcam_current_id);
+	
+	
 	app_message_register_inbox_received(cb_in_received_handler);
   
 	webcam_window = window_create();
@@ -150,28 +150,28 @@ static void webcam_submenu_load(Window *window) {
 	Layer *window_layer = window_get_root_layer(window);
 	GRect bounds = layer_get_bounds(window_layer);
   
-  int count = 0;
-  for (int i = 0; webcams[i].mainmenu_id <= webcams_current_submenu_idx; i++) {
-    if (webcams[i].mainmenu_id == webcams_current_submenu_idx) {
-      webcams_submenu_section_items[count++] = (SimpleMenuItem) {
-        webcams[i].title,
-        webcams[i].subtitle,
-        NULL,
-        webcam_submenu_select
-      };
-    }
+	int count = 0;
+	for (int i = 0; webcams[i].mainmenu_id <= webcams_current_submenu_idx; i++) {
+	if (webcams[i].mainmenu_id == webcams_current_submenu_idx) {
+		webcams_submenu_section_items[count++] = (SimpleMenuItem) {
+			webcams[i].title,
+			webcams[i].subtitle,
+			NULL,
+			webcam_submenu_select
+			};
+		}
 
-    webcams_submenu_sections[0] = (SimpleMenuSection) {
-      webcams_main_menu_items[webcams_current_submenu_idx].title,
-      webcams_submenu_section_items,
-      count
-    };
-  }
+		webcams_submenu_sections[0] = (SimpleMenuSection) {
+			webcams_main_menu_items[webcams_current_submenu_idx].title,
+			webcams_submenu_section_items,
+			count
+		};
+	}
 
 	SimpleMenuLayer *menu = simple_menu_layer_create(bounds, webcams_submenu, webcams_submenu_sections, 1, NULL);
 #ifdef PBL_COLOR
-  menu_layer_set_highlight_colors(simple_menu_layer_get_menu_layer(menu), GColorIndigo, GColorWhite);
-  //menu_layer_set_normal_colors(simple_menu_layer_get_menu_layer(menu), GColorPastelYellow, GColorBlack);
+	menu_layer_set_highlight_colors(simple_menu_layer_get_menu_layer(menu), GColorIndigo, GColorWhite);
+	//menu_layer_set_normal_colors(simple_menu_layer_get_menu_layer(menu), GColorPastelYellow, GColorBlack);
 #endif
 	layer_add_child(window_layer, (Layer *)menu);
 }
@@ -183,7 +183,7 @@ static void webcam_submenu_unload(Window *window) {
 /* Webcams Main menu */
 
 static void webcam_mainmenu_select(int index, void *context) {
-  webcams_current_submenu_idx = index;
+	webcams_current_submenu_idx = index;
 	webcams_submenu = window_create();
 	//window_set_click_config_provider(webcams_mainmenu, click_config_provider);
 	window_set_window_handlers(webcams_submenu, (WindowHandlers) {
@@ -198,24 +198,24 @@ static void webcam_mainmenu_load(Window *window) {
 	Layer *window_layer = window_get_root_layer(window);
 	GRect bounds = layer_get_bounds(window_layer);
 
-  int k = 0;
-  for (int i = 0; i < NB_SECTIONS; i++) {
-    for (int j = 0; j < webcams_main_menu_section_items_count[i]; j++) {
-      webcams_mainmenu_section_items[i][j] = (SimpleMenuItem) {
-        webcams_main_menu_items[k].title,
-        webcams_main_menu_items[k].subtitle,
-        NULL,
-        webcam_mainmenu_select
-      };
-      k++;
-    }
-    
-    webcams_mainmenu_sections[i] = (SimpleMenuSection) {
-      webcams_main_menu_section_names[i],
-      webcams_mainmenu_section_items[i],
-      webcams_main_menu_section_items_count[i]
-    };
-  }
+	int k = 0;
+	for (int i = 0; i < NB_SECTIONS; i++) {
+		for (int j = 0; j < webcams_main_menu_section_items_count[i]; j++) {
+			webcams_mainmenu_section_items[i][j] = (SimpleMenuItem) {
+				webcams_main_menu_items[k].title,
+				webcams_main_menu_items[k].subtitle,
+				NULL,
+				webcam_mainmenu_select
+			};
+			k++;
+		}
+
+		webcams_mainmenu_sections[i] = (SimpleMenuSection) {
+			webcams_main_menu_section_names[i],
+			webcams_mainmenu_section_items[i],
+			webcams_main_menu_section_items_count[i]
+		};
+	}
 
 	SimpleMenuLayer *menu = simple_menu_layer_create(bounds, webcams_mainmenu, webcams_mainmenu_sections, NB_SECTIONS, NULL);
 #ifdef PBL_COLOR
