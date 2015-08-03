@@ -6,6 +6,10 @@
 
 static Window *rootmenu;
 
+static SimpleMenuSection menu_sections[2];
+static SimpleMenuItem menu_section0_items[3];
+static SimpleMenuItem menu_section1_items[1];
+static SimpleMenuLayer *rootmenu_layer;
 
 /* main menu */
 
@@ -22,11 +26,6 @@ static void menuselect_webcams(int index, void *context) {
 	init_webcam();
 }
 
-
-//static SimpleMenuLayer menu_layer;
-static SimpleMenuSection menu_sections[2];
-static SimpleMenuItem menu_section0_items[3];
-static SimpleMenuItem menu_section1_items[1];
 
 static void rootmenu_load(Window *window) {
 	Layer *window_layer = window_get_root_layer(window);
@@ -47,23 +46,24 @@ static void rootmenu_load(Window *window) {
 	};
 
 	menu_section1_items[0] = (SimpleMenuItem) {
-		"PebbleTrafficLux", "Data (c) CITA", NULL, NULL
+		"PebbleTrafficLux", "tinyurl.com/trafficlux", NULL, NULL
 	};
 
 	menu_sections[1] = (SimpleMenuSection) {
 		"A propos", menu_section1_items, 1
 	};
 
-	SimpleMenuLayer *menu = simple_menu_layer_create(bounds, rootmenu, menu_sections, 2, NULL);
+	rootmenu_layer = simple_menu_layer_create(bounds, rootmenu, menu_sections, 2, NULL);
 #ifdef PBL_COLOR
-  menu_layer_set_highlight_colors(simple_menu_layer_get_menu_layer(menu), GColorCobaltBlue, GColorWhite);
+  menu_layer_set_highlight_colors(simple_menu_layer_get_menu_layer(rootmenu_layer), GColorCobaltBlue, GColorWhite);
 #endif
-  layer_add_child(window_layer, (Layer *)menu);
+  layer_add_child(window_layer, (Layer *)rootmenu_layer);
 
 }
 
 static void rootmenu_unload(Window *window) {
-	//init_webcam();
+	window_destroy(window);
+  rootmenu = NULL;
 }
 
 

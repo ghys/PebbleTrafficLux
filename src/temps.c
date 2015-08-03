@@ -17,7 +17,7 @@ static TextLayer *traveltime_bkg_text_layer;
 
 static SimpleMenuItem *traveltimes_menu_items = NULL;
 static SimpleMenuSection traveltimes_menu_section;
-
+static SimpleMenuLayer *traveltimes_menu_layer;
 
 #define KEY_TRAVELTIMES_REQ   20
 #define KEY_TRAVELTIMES_SIZE  21
@@ -89,6 +89,8 @@ static void traveltime_details_window_unload(Window *window) {
   text_layer_destroy(traveltime_from_text_layer);
   text_layer_destroy(traveltime_name_text_layer);
   scroll_layer_destroy(traveltime_details_scroll_layer);
+  window_destroy(window);
+  traveltime_details = NULL;
 }
 
 static void show_traveltime_details(int index, void *context) {
@@ -142,11 +144,11 @@ static void cb_traveltimes_received_handler(DictionaryIterator *iter, void *cont
 	Layer *window_layer = window_get_root_layer(traveltimes);
 	GRect bounds = layer_get_bounds(window_layer);
   
-	SimpleMenuLayer *menu = simple_menu_layer_create(bounds, traveltimes, &traveltimes_menu_section, 1, NULL);
+	traveltimes_menu_layer = simple_menu_layer_create(bounds, traveltimes, &traveltimes_menu_section, 1, NULL);
 #ifdef PBL_COLOR
-  menu_layer_set_highlight_colors(simple_menu_layer_get_menu_layer(menu), GColorIslamicGreen, GColorWhite);
+  menu_layer_set_highlight_colors(simple_menu_layer_get_menu_layer(traveltimes_menu_layer), GColorIslamicGreen, GColorWhite);
 #endif
-	layer_add_child(window_layer, (Layer *)menu);
+	layer_add_child(window_layer, (Layer *)traveltimes_menu_layer);
   
 }
 
@@ -168,7 +170,6 @@ static void traveltimes_load(Window *window) {
 	dict_write_int(iter, KEY_TRAVELTIMES_REQ, &value, 1, true);
 	dict_write_end(iter);
 	app_message_outbox_send();
-
 }
 
 static void traveltimes_unload(Window *window) {
@@ -176,7 +177,10 @@ static void traveltimes_unload(Window *window) {
   if (traveltimes_menu_items) {
     free(traveltimes_menu_items);
   }
+  simple_menu_layer_destroy(traveltimes_menu_layer);
   app_message_register_inbox_received(NULL);
+  window_destroy(window);
+  traveltimes = NULL;
 }
 
 

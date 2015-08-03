@@ -1,6 +1,6 @@
-var options = JSON.parse(localStorage.getItem('options'));
+/*var options = JSON.parse(localStorage.getItem('options'));
 if (options === null) 
-  options = { "url" : "http://www.cita.lu/info_trafic/cameras/images/cccam_{id}.jpg"};
+  options = { "url" : "http://www.cita.lu/info_trafic/cameras/images/cccam_{id}.jpg"}; */
 
 var CHUNK_SIZE = 1500;
 var DOWNLOAD_TIMEOUT = 20000;
@@ -242,7 +242,7 @@ function parseIncidents(doc) {
     //console.log("item: " + item.substring(1, 5));
     var date = doc.substring(spanstart + 22, spanstart + 41);
     
-    console.log(encodeURI(item));
+    //console.log(encodeURI(item));
     incidents[(i+1000).toString()] =  encodeURI(item);
     incidents[(i+2000).toString()] = date;
     i++;
@@ -251,14 +251,14 @@ function parseIncidents(doc) {
   incidents.incidents_size = i;
 
   //console.log('Send message: ' + JSON.stringify(incidents));
-  console.log('Send message! num messages=' + incidents.incidents_size);
+  console.log('Sending message! Parsed incidents: ' + incidents.incidents_size);
   
   Pebble.sendAppMessage(incidents, //null, null);
     function(e) {
-      console.log('Successfully delivered message with transactionId=' + e.data.transactionId);
+      //console.log('Successfully delivered message with transactionId=' + e.data.transactionId);
     },
     function(e) {
-      console.log('Unable to deliver message with transactionId=' + e.data.transactionId + ' Error is: ' + e.error.message);
+      //console.log('Unable to deliver message with transactionId=' + e.data.transactionId + ' Error is: ' + e.error.message);
     }
   );
   
@@ -290,7 +290,7 @@ function parseTravelTimes(doc) {
       placemarktimes += placemarktime + "\n";
     }
     
-    console.log("name=" + name + ", times=" + placemarktimes);
+    //console.log("name=" + name + ", times=" + placemarktimes);
     
     traveltimes[(i+3000).toString()] = name;
     traveltimes[(i+4000).toString()] = placemarktimes;
@@ -300,14 +300,14 @@ function parseTravelTimes(doc) {
   traveltimes.traveltimes_size = i;
 
   //console.log('Send message: ' + JSON.stringify(incidents));
-  console.log('Send message! num messages=' + traveltimes.traveltimes_size);
+  console.log('Sending message! Parsed travel times: ' + traveltimes.traveltimes_size);
   
   Pebble.sendAppMessage(traveltimes, //null, null);
     function(e) {
-      console.log('Successfully delivered message with transactionId=' + e.data.transactionId);
+      //console.log('Successfully delivered message with transactionId=' + e.data.transactionId);
     },
     function(e) {
-      console.log('Unable to deliver message with transactionId=' + e.data.transactionId + ' Error is: ' + e.error.message);
+      //console.log('Unable to deliver message with transactionId=' + e.data.transactionId + ' Error is: ' + e.error.message);
     }
   );
   
@@ -328,7 +328,7 @@ function getIncidents() {
   };
   
   req.open('GET', 'http://www.cita.lu/fr/infos-trafic/generate', true);
-  console.log("calling cita.lu");
+  console.log("Fetching http://www.cita.lu/fr/infos-trafic/generate...");
   req.send();
 }
 
@@ -340,7 +340,6 @@ function getTravelTimes() {
     //console.log("ready state change - readyState=" + req.readyState);
     
     if (req.readyState == 4 && req.status == 200) {
-      console.log("responseXML: " + req.responseXML);
       //console.log("responseText: " + req.responseText.substring(1, 4));
 
       parseTravelTimes(req.responseText);
@@ -348,7 +347,7 @@ function getTravelTimes() {
   };
   
   req.open('GET', 'http://cita.lu/kml/temps_parcours.kml', true);
-  console.log("calling cita.lu");
+  console.log("http://cita.lu/kml/temps_parcours.kml...");
   req.send();
 }
 
@@ -363,13 +362,14 @@ Pebble.addEventListener("appmessage", function(e) {
   } else if (e.payload.traveltimes_req) {
     getTravelTimes();
   } else if (e.payload.webcam) {
+    var webcamurl = "http://www.cita.lu/info_trafic/cameras/images/cccam_{id}.jpg";
     console.log('Downloading webcam #' + e.payload.webcam);
-    getImage(options.url.replace('{id}', e.payload.webcam));
+    getImage(webcamurl.replace('{id}', e.payload.webcam));
   }
 });
 
-Pebble.addEventListener('showConfiguration', function(e) {
-  var uri = 'http://petitpepito.free.fr/config/imageviewer_config.html';
+/* Pebble.addEventListener('showConfiguration', function(e) {
+  var uri = 'http://later';
   Pebble.openURL(uri);
 });
 
@@ -380,6 +380,4 @@ Pebble.addEventListener('webviewclosed', function(e) {
     getImage(options.url);
   } 
 });
-
-
-
+*/

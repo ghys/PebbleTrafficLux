@@ -19,25 +19,27 @@ static Window *webcams_submenu;
 #define CHUNK_SIZE 1500
 
 #define NB_SECTIONS                2
+#define FIRST_AUTOROUTE_IDX        5
 #define MAX_MAINMENUSECTION_ITEMS  8
-#define MAX_SUBMENUSECTION_ITEMS  20
+#define MAX_SUBMENUSECTION_ITEMS  25
 
 static int webcams_current_submenu_idx = 0;
 static int webcam_current_id = 0;
 
 static SimpleMenuSection webcams_mainmenu_sections[NB_SECTIONS];
 static SimpleMenuItem webcams_mainmenu_section_items[NB_SECTIONS][MAX_MAINMENUSECTION_ITEMS];
+static SimpleMenuLayer *webcams_mainmenu_layer;
 
 static SimpleMenuSection webcams_submenu_sections[1];
 static SimpleMenuItem webcams_submenu_section_items[MAX_SUBMENUSECTION_ITEMS];
-
+static SimpleMenuLayer *webcams_submenu_layer;
 
 static BitmapLayer  *image_layer;
 static GBitmap      *image = NULL;
 static uint8_t      *data_image = NULL;
 static uint32_t     data_size;
 
-static TextLayer    *text_layer;
+static TextLayer    *webcam_status_text_layer;
 
 static void cb_in_received_handler(DictionaryIterator *iter, void *context) {
 	// Get the bitmap
@@ -71,14 +73,14 @@ static void cb_in_received_handler(DictionaryIterator *iter, void *context) {
 			image = gbitmap_create_with_data(data_image);
 #endif
 			bitmap_layer_set_bitmap(image_layer, image);
-			text_layer_set_text(text_layer, "");
+			text_layer_set_text(webcam_status_text_layer, "");
 			layer_mark_dirty(bitmap_layer_get_layer(image_layer));
 		}
 	}
 
 	Tuple *message_tuple = dict_find(iter, KEY_MESSAGE);
 	if (message_tuple){
-		text_layer_set_text(text_layer, message_tuple->value->cstring);
+		text_layer_set_text(webcam_status_text_layer, message_tuple->value->cstring);
 	}
 }
 
@@ -90,12 +92,12 @@ static void webcam_window_load(Window *window) {
 	bitmap_layer_set_alignment(image_layer, GAlignCenter);
 	layer_add_child(window_layer, bitmap_layer_get_layer(image_layer));
 
-	text_layer = text_layer_create(GRect(0, bounds.size.h - 16, bounds.size.w, 16));
-	text_layer_set_text(text_layer, "Please wait...");
-	text_layer_set_font(text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
-	text_layer_set_text_alignment(text_layer, GTextAlignmentCenter);
-	text_layer_set_background_color(text_layer, GColorClear);
-	layer_add_child(window_layer, text_layer_get_layer(text_layer));
+	webcam_status_text_layer = text_layer_create(GRect(0, bounds.size.h - 16, bounds.size.w, 16));
+	text_layer_set_text(webcam_status_text_layer, "Please wait...");
+	text_layer_set_font(webcam_status_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+	text_layer_set_text_alignment(webcam_status_text_layer, GTextAlignmentCenter);
+	text_layer_set_background_color(webcam_status_text_layer, GColorClear);
+	layer_add_child(window_layer, text_layer_get_layer(webcam_status_text_layer));
 
 
 	DictionaryIterator *iter;
@@ -103,11 +105,10 @@ static void webcam_window_load(Window *window) {
 	dict_write_int(iter, KEY_WEBCAM, &webcam_current_id, sizeof(int), true);
 	dict_write_end(iter);
 	app_message_outbox_send();  
-
 }
 
 static void webcam_window_unload(Window *window) {
-	text_layer_destroy(text_layer);
+	text_layer_destroy(webcam_status_text_layer);
 	bitmap_layer_destroy(image_layer);
 	if (image){
 		gbitmap_destroy(image);
@@ -117,8 +118,6 @@ static void webcam_window_unload(Window *window) {
 		free(data_image);
 		data_image = NULL;
 	}
-  
-  //window_destroy(webcams_mainmenu);
 }
 
 /* Webcams sub menu */
@@ -163,29 +162,28 @@ static void webcam_submenu_load(Window *window) {
 
 		webcams_submenu_sections[0] = (SimpleMenuSection) {
 			webcams_main_menu_items[webcams_current_submenu_idx].title,
-			webcams_submenu_section_items,
-			count
+			webcams_submenu_section_items, count
 		};
 	}
 
-	SimpleMenuLayer *menu = simple_menu_layer_create(bounds, webcams_submenu, webcams_submenu_sections, 1, NULL);
+	webcams_submenu_layer = simple_menu_layer_create(bounds, webcams_submenu, webcams_submenu_sections, 1, NULL);
 #ifdef PBL_COLOR
-	menu_layer_set_highlight_colors(simple_menu_layer_get_menu_layer(menu), GColorIndigo, GColorWhite);
-	//menu_layer_set_normal_colors(simple_menu_layer_get_menu_layer(menu), GColorPastelYellow, GColorBlack);
+	menu_layer_set_highlight_colors(simple_menu_layer_get_menu_layer(webcams_submenu_layer), GColorIndigo, GColorWhite);
 #endif
-	layer_add_child(window_layer, (Layer *)menu);
+	layer_add_child(window_layer, (Layer *)webcams_submenu_layer);
 }
 
 static void webcam_submenu_unload(Window *window) {
-	//init_webcam();
+	simple_menu_layer_destroy(webcams_submenu_layer);
+  window_destroy(window);
+  webcams_submenu = NULL;
 }
 
 /* Webcams Main menu */
 
-static void webcam_mainmenu_select(int index, void *context) {
+static void webcam_mainmenu_hotspot_select(int index, void *context) {
 	webcams_current_submenu_idx = index;
 	webcams_submenu = window_create();
-	//window_set_click_config_provider(webcams_mainmenu, click_config_provider);
 	window_set_window_handlers(webcams_submenu, (WindowHandlers) {
 		.load = webcam_submenu_load,
 		.unload = webcam_submenu_unload,
@@ -193,6 +191,15 @@ static void webcam_mainmenu_select(int index, void *context) {
 	window_stack_push(webcams_submenu, true);
 }  
 
+static void webcam_mainmenu_autoroute_select(int index, void *context) {
+	webcams_current_submenu_idx = index + FIRST_AUTOROUTE_IDX;
+	webcams_submenu = window_create();
+	window_set_window_handlers(webcams_submenu, (WindowHandlers) {
+		.load = webcam_submenu_load,
+		.unload = webcam_submenu_unload,
+	});
+	window_stack_push(webcams_submenu, true);
+}  
 
 static void webcam_mainmenu_load(Window *window) {
 	Layer *window_layer = window_get_root_layer(window);
@@ -205,7 +212,7 @@ static void webcam_mainmenu_load(Window *window) {
 				webcams_main_menu_items[k].title,
 				webcams_main_menu_items[k].subtitle,
 				NULL,
-				webcam_mainmenu_select
+				(i == 0) ? webcam_mainmenu_hotspot_select : webcam_mainmenu_autoroute_select
 			};
 			k++;
 		}
@@ -217,16 +224,17 @@ static void webcam_mainmenu_load(Window *window) {
 		};
 	}
 
-	SimpleMenuLayer *menu = simple_menu_layer_create(bounds, webcams_mainmenu, webcams_mainmenu_sections, NB_SECTIONS, NULL);
+	webcams_mainmenu_layer = simple_menu_layer_create(bounds, webcams_mainmenu, webcams_mainmenu_sections, NB_SECTIONS, NULL);
 #ifdef PBL_COLOR
-  menu_layer_set_highlight_colors(simple_menu_layer_get_menu_layer(menu), GColorTiffanyBlue, GColorWhite);
-  //menu_layer_set_normal_colors(simple_menu_layer_get_menu_layer(menu), GColorCeleste, GColorBlack);
+  menu_layer_set_highlight_colors(simple_menu_layer_get_menu_layer(webcams_mainmenu_layer), GColorTiffanyBlue, GColorWhite);
 #endif
-  layer_add_child(window_layer, (Layer *)menu);
+  layer_add_child(window_layer, (Layer *)webcams_mainmenu_layer);
 }
 
 static void webcam_mainmenu_unload(Window *window) {
-	//init_webcam();
+	simple_menu_layer_destroy(webcams_mainmenu_layer);
+  window_destroy(window);
+  webcams_mainmenu = NULL;
 }
 
 

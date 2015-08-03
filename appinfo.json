@@ -11,22 +11,29 @@
         "webcam": 9
     },
     "capabilities": [
-        "configurable"
+        ""
     ],
     "companyName": "YS",
-    "longName": "Trafic Info Luxembourg",
+    "longName": "Traffic Info Luxembourg",
     "projectType": "native",
     "resources": {
-        "media": []
+        "media": [
+            {
+                "file": "images/logo.png",
+                "menuIcon": true,
+                "name": "LOGO_IMAGE",
+                "type": "png"
+            }
+        ]
     },
     "sdkVersion": "3",
-    "shortName": "Trafic Info Luxembourg",
+    "shortName": "Traffic Info Luxembourg",
     "targetPlatforms": [
         "aplite",
         "basalt"
     ],
-    "uuid": "ed4bd38e-6b71-4cc2-a3cf-1a3732ec2f2b",
-    "versionLabel": "0.1",
+    "uuid": "9c6bb042-de52-4bee-a004-cd31a04f80a6",
+    "versionLabel": "1.0",
     "watchapp": {
         "watchface": false
     }

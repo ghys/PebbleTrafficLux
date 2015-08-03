@@ -7,7 +7,8 @@ static Window *incidents;
 
 static Window *incident_details;
 
-static TextLayer    *incidents_loading_layer;
+static TextLayer *incidents_loading_layer;
+static TextLayer *no_incidents_layer;
 
 static int nb_incidents = 0;
 static int current_incident_idx = 0;
@@ -17,6 +18,7 @@ static TextLayer *incident_details_date_layer;
 
 static SimpleMenuItem *incidents_menu_items = NULL;
 static SimpleMenuSection incidents_menu_section;
+static SimpleMenuLayer *incidents_menu_layer;
 
 
 #define KEY_INCIDENTS_REQ   10
@@ -102,6 +104,8 @@ static void incident_details_window_unload(Window *window) {
   text_layer_destroy(incident_details_text_layer);
   text_layer_destroy(incident_details_date_layer);
   scroll_layer_destroy(incident_details_scroll_layer);
+  window_destroy(window);
+  incident_details = NULL;
 }
 
 static void show_incident_details(int index, void *context) {
@@ -122,13 +126,13 @@ static void cb_incidents_received_handler(DictionaryIterator *iter, void *contex
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "incidents app message callback");
   
  	Tuple *size_tuple = dict_find(iter, KEY_INCIDENTS_SIZE);
-  if (!size_tuple) {
+  if (!size_tuple || size_tuple->value->int32 < 1) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "no KEY_INCIDENTS_SIZE in dict?");
     nb_incidents = 0;
-    
+    text_layer_set_text(incidents_loading_layer, "");
+    text_layer_set_text(no_incidents_layer, "Alles an der Rei ;)");
+
     return;
-  } else {
-    
   }
   
   nb_incidents = size_tuple->value->int32;
@@ -147,7 +151,6 @@ static void cb_incidents_received_handler(DictionaryIterator *iter, void *contex
     incidents_menu_items[i].subtitle = date_tuple->value->cstring;
     incidents_menu_items[i].icon = NULL;
     incidents_menu_items[i].callback = show_incident_details;
-    //free(message);
   }
   
   incidents_menu_section = (SimpleMenuSection) {
@@ -157,11 +160,11 @@ static void cb_incidents_received_handler(DictionaryIterator *iter, void *contex
 	Layer *window_layer = window_get_root_layer(incidents);
 	GRect bounds = layer_get_bounds(window_layer);
   
-	SimpleMenuLayer *menu = simple_menu_layer_create(bounds, incidents, &incidents_menu_section, 1, NULL);
+	incidents_menu_layer = simple_menu_layer_create(bounds, incidents, &incidents_menu_section, 1, NULL);
 #ifdef PBL_COLOR
-  menu_layer_set_highlight_colors(simple_menu_layer_get_menu_layer(menu), GColorRed, GColorWhite);
+  menu_layer_set_highlight_colors(simple_menu_layer_get_menu_layer(incidents_menu_layer), GColorRed, GColorWhite);
 #endif
-	layer_add_child(window_layer, (Layer *)menu);
+	layer_add_child(window_layer, (Layer *)incidents_menu_layer);
   
 }
 
@@ -175,7 +178,13 @@ static void incidents_load(Window *window) {
 	text_layer_set_font(incidents_loading_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
 	text_layer_set_text_alignment(incidents_loading_layer, GTextAlignmentCenter);
   layer_add_child(window_layer, text_layer_get_layer(incidents_loading_layer));
-  
+
+	no_incidents_layer = text_layer_create(GRect(0, 50, bounds.size.w, 80));
+	text_layer_set_text(no_incidents_layer, "");
+	text_layer_set_font(no_incidents_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
+	text_layer_set_text_alignment(no_incidents_layer, GTextAlignmentCenter);
+  layer_add_child(window_layer, text_layer_get_layer(no_incidents_layer));
+
 	DictionaryIterator *iter;
 	uint8_t value = 1;
 	app_message_outbox_begin(&iter);
@@ -187,6 +196,7 @@ static void incidents_load(Window *window) {
 
 static void incidents_unload(Window *window) {
 	text_layer_destroy(incidents_loading_layer);
+  text_layer_destroy(no_incidents_layer);
   for (int i = 0; i < nb_incidents; i++) {
     free((char *)incidents_menu_items[i].title);
   }
@@ -194,6 +204,10 @@ static void incidents_unload(Window *window) {
     free(incidents_menu_items);
   }
   app_message_register_inbox_received(NULL);
+  
+  simple_menu_layer_destroy(incidents_menu_layer);
+  window_destroy(incidents);
+  incidents = NULL;
 }
 
 
