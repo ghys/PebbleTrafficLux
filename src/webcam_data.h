@@ -110,6 +110,13 @@ static struct Webcam webcams[] = {
   { 8, "Steinfort E", "dir. Luxembourg", 6 },
   { 8, "Steinfort W", "dir. Belgique", 3 },
   // A7
+  { 9, "Jct. A7/A1", "dir. Lux./Kirchberg", 603 },
+  { 9, "Tunnel Stafelter S", "dir. Lux./Kirchberg", 609 },
+  { 9, "Tunnel Stafelter N", "dir. Lux./Kitchberg", 650 },
+  { 9, "Tunnel Stafelter N", "dir. Ettelbrück", 651 },
+  { 9, "Passage à gibier", "dir. Ettelbrück", 657 },
+  { 9, "Tunnel Grouft S", "dir. Lux./Kirchberg", 653 },
+  { 9, "Tunnel Grouft N", "dir. Ettelbrück", 738 },
   { 9, "Lorentzweiler", "dir. Luxembourg", 400 },
   { 9, "Tunnel G'bierg S", "dir. Luxembourg", 402 },
   { 9, "Tunnel G'bierg S", "dir. Ettelbrück", 403 },
